@@ -3,6 +3,7 @@ package com.xsparks.Raahi.models;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 
 import org.springframework.lang.NonNull;
 
@@ -17,7 +18,8 @@ public class PathNode {
     String vector;
 
     @NonNull
-    String locationId;
+    @ManyToOne
+    Location location;
 
     public int getId() {
         return id;
@@ -27,12 +29,12 @@ public class PathNode {
         this.id = id;
     }
 
-    public String getLocationId() {
-        return locationId;
+    public Location getLocation() {
+        return location;
     }
 
-    public void setLocationId(String locationId) {
-        this.locationId = locationId;
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     public String getVector() {

@@ -3,46 +3,32 @@ package com.xsparks.Raahi.models;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 
 import org.springframework.lang.NonNull;
 
 @Entity
-public class Edge {
+public class Location {
     @Id
     @GeneratedValue
     @NonNull
     int id;
 
     @NonNull
-    @ManyToOne
-    PathNode from;
-
-    @NonNull
-    @ManyToOne
-    PathNode to;
+    String locationName;
 
     public int getId() {
         return id;
     }
-    
+
     public void setId(int id) {
         this.id = id;
     }
 
-    public PathNode getFrom() {
-        return from;
+    public String getLocationName() {
+        return locationName;
     }
 
-    public void setFrom(PathNode from) {
-        this.from = from;
-    }
-
-    public PathNode getTo() {
-        return to;
-    }
-
-    public void setTo(PathNode to) {
-        this.to = to;
+    public void setLocationName(String locationName) {
+        this.locationName = locationName;
     }
 }
