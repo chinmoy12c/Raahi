@@ -1,4 +1,7 @@
 using UnityEngine;
+using UnityEngine.Networking;
+using System;
+using System.Text;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -43,6 +46,8 @@ public class LocationScanner : MonoBehaviour {
             Vector3 to = pathNodes[pathNodes.Count - 1].transform.position;
             drawPath(from, to);            
         }
+
+        initiateSavePath();
     }
 
     private void drawPath(Vector3 from, Vector3 to) {
@@ -58,5 +63,42 @@ public class LocationScanner : MonoBehaviour {
             Instantiate(directionalPointer, nextDirectionalArrow, arrowRotation);
             nextDirectionalArrow = nextDirectionalArrow + direction * NODE_DRAW_DISTANCE;
         }
+    }
+
+    void initiateSavePath() {
+        Route route = new Route();
+        route.setLocationName("KIET");
+        route.setPoiName("Amul");
+        List<string> nodes = new List<string>();
+        foreach (GameObject node in pathNodes) {
+            nodes.Add(route.convertVector(node.transform.position));
+        }
+        route.setNodes(nodes);
+        StartCoroutine(postRouteData(route));
+    }
+
+    IEnumerator postRouteData(Route route) {
+        string jsonData = JsonUtility.ToJson(route);
+        Debug.Log(jsonData);
+        using (UnityWebRequest request = PostWebRequest("http://10.21.84.190:8080/saveRoute", jsonData)) {
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Accept", "application/json");
+            yield return request.SendWebRequest();
+            if (request.result == UnityWebRequest.Result.Success) {
+                Debug.Log("Success");
+            }
+            else {
+                Debug.Log("Failed");
+            }
+        }
+    }
+
+    public static UnityWebRequest PostWebRequest(String uri, string body) {
+        return PostWebRequest(new Uri(uri), body, Encoding.UTF8);
+    }
+ 
+    public static UnityWebRequest PostWebRequest(Uri uri, string body, Encoding encoding) {
+        byte[] bodyData = encoding.GetBytes(body);
+        return new UnityWebRequest(uri, UnityWebRequest.kHttpVerbPOST, new DownloadHandlerBuffer(), new UploadHandlerRaw(bodyData));
     }
 }
