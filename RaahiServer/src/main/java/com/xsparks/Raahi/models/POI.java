@@ -16,7 +16,7 @@ public class POI {
 
     @NonNull
     @OneToOne
-    PathNode node;
+    PathNode pathNode;
 
     @NonNull
     String poiName;
@@ -30,11 +30,11 @@ public class POI {
     }
 
     public PathNode getNode() {
-        return node;
+        return pathNode;
     }
 
-    public void setNode(PathNode node) {
-        this.node = node;
+    public void setNode(PathNode pathNode) {
+        this.pathNode = pathNode;
     }
 
     public String getPoiName() {

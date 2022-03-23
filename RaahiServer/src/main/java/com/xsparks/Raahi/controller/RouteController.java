@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import net.minidev.json.JSONObject;
+
 @RestController
 public class RouteController {
 
@@ -34,7 +36,11 @@ public class RouteController {
         ArrayList<String> nodes = (ArrayList<String>) request.get("nodes");
         String locationName = (String) request.get("locationName");
         String poiName = (String) request.get("poiName");
-        Location location = new Location();
+        Location location = locationRepo.getByLocationName(locationName);
+        if (location != null) {
+            return;
+        }
+        location = new Location();
         location.setLocationName(locationName);
         Location createdLocation = locationRepo.save(location);
         ArrayList<PathNode> createdNodes = new ArrayList<>();
@@ -55,5 +61,17 @@ public class RouteController {
         routePoi.setNode(createdNodes.get(createdNodes.size() - 1));
         routePoi.setPoiName(poiName);
         poiRepo.save(routePoi);
+    }
+
+    @PostMapping("/getLocation")
+    JSONObject getLocation(@RequestBody HashMap<String, String> request) {
+        Location location = locationRepo.getByLocationName(request.get("locationName"));
+        PathNode[] nodes = pathNodeRepo.getByLocation(location);
+        Edge[] edges = edgeRepo.getByToIn(nodes);
+        POI[] pois = poiRepo.getByPathNodeIn(nodes);
+        JSONObject respone = new JSONObject();
+        respone.put("routeData", edges);
+        respone.put("pois", pois);
+        return respone;
     }
 }
