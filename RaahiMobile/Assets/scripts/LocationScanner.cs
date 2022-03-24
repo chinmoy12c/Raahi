@@ -17,6 +17,7 @@ public class LocationScanner : MonoBehaviour {
     private const float POI_DRAW_DISTANCE = 1.5f;
     private const float NODE_DRAW_DISTANCE = 0.7f;
     private const float NODE_ARROW_DISTANCE = 0.5f;
+    private string BASE_URL = "http://192.168.20.31:8080";
 
     private Camera mainCamera;
     private List<GameObject> pathNodes;
@@ -26,11 +27,20 @@ public class LocationScanner : MonoBehaviour {
         pathNodes = new List<GameObject>();
 	}
 
+    public static UnityWebRequest PostWebRequest(String uri, string body) {
+        return PostWebRequest(new Uri(uri), body, Encoding.UTF8);
+    }
+ 
+    public static UnityWebRequest PostWebRequest(Uri uri, string body, Encoding encoding) {
+        byte[] bodyData = encoding.GetBytes(body);
+        return new UnityWebRequest(uri, UnityWebRequest.kHttpVerbPOST, new DownloadHandlerBuffer(), new UploadHandlerRaw(bodyData));
+    }
+
 	public void placeTurn() {
         Vector3 poiLocation = mainCamera.transform.position + mainCamera.transform.forward * POI_DRAW_DISTANCE;
         GameObject pathNode = Instantiate(turnPointer, poiLocation, Quaternion.identity);
         pathNodes.Add(pathNode);
-        if (pathNodes.Count >= 2) {
+        if (pathNodes.Count > 1) {
             Vector3 from = pathNodes[pathNodes.Count - 2].transform.position;
             Vector3 to = pathNodes[pathNodes.Count - 1].transform.position;
             drawPath(from, to);            
@@ -41,7 +51,7 @@ public class LocationScanner : MonoBehaviour {
         Vector3 poiLocation = mainCamera.transform.position + mainCamera.transform.forward * POI_DRAW_DISTANCE;
         GameObject pathNode = Instantiate(poiPointer, poiLocation, Quaternion.identity);
         pathNodes.Add(pathNode);
-        if (pathNodes.Count >= 2) {
+        if (pathNodes.Count > 1) {
             Vector3 from = pathNodes[pathNodes.Count - 2].transform.position;
             Vector3 to = pathNodes[pathNodes.Count - 1].transform.position;
             drawPath(from, to);            
@@ -80,7 +90,7 @@ public class LocationScanner : MonoBehaviour {
     IEnumerator postRouteData(Route route) {
         string jsonData = JsonUtility.ToJson(route);
         Debug.Log(jsonData);
-        using (UnityWebRequest request = PostWebRequest("http://10.21.84.190:8080/saveRoute", jsonData)) {
+        using (UnityWebRequest request = PostWebRequest(BASE_URL + "/saveRoute", jsonData)) {
             request.SetRequestHeader("Content-Type", "application/json");
             request.SetRequestHeader("Accept", "application/json");
             yield return request.SendWebRequest();
@@ -91,14 +101,5 @@ public class LocationScanner : MonoBehaviour {
                 Debug.Log("Failed");
             }
         }
-    }
-
-    public static UnityWebRequest PostWebRequest(String uri, string body) {
-        return PostWebRequest(new Uri(uri), body, Encoding.UTF8);
-    }
- 
-    public static UnityWebRequest PostWebRequest(Uri uri, string body, Encoding encoding) {
-        byte[] bodyData = encoding.GetBytes(body);
-        return new UnityWebRequest(uri, UnityWebRequest.kHttpVerbPOST, new DownloadHandlerBuffer(), new UploadHandlerRaw(bodyData));
     }
 }

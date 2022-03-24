@@ -64,13 +64,13 @@ public class RouteController {
     }
 
     @PostMapping("/getLocation")
-    JSONObject getLocation(@RequestBody HashMap<String, String> request) {
-        Location location = locationRepo.getByLocationName(request.get("locationName"));
+    JSONObject getLocation(@RequestBody HashMap<String, Object> request) {
+        Location location = locationRepo.getByLocationName((String) request.get("locationName"));
         PathNode[] nodes = pathNodeRepo.getByLocation(location);
         Edge[] edges = edgeRepo.getByToIn(nodes);
         POI[] pois = poiRepo.getByPathNodeIn(nodes);
         JSONObject respone = new JSONObject();
-        respone.put("routeData", edges);
+        respone.put("edges", edges);
         respone.put("pois", pois);
         return respone;
     }
