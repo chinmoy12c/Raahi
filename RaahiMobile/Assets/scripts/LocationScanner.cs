@@ -17,7 +17,7 @@ public class LocationScanner : MonoBehaviour {
     private const float POI_DRAW_DISTANCE = 1.5f;
     private const float NODE_DRAW_DISTANCE = 0.7f;
     private const float NODE_ARROW_DISTANCE = 0.5f;
-    private string BASE_URL = "http://192.168.20.31:8080";
+    private string BASE_URL = "http://10.21.85.102:8080";
 
     private Camera mainCamera;
     private List<GameObject> pathNodes;
@@ -47,7 +47,7 @@ public class LocationScanner : MonoBehaviour {
         }
     }
 
-    public void placePoi() {
+    public void placePoi(string locationName, string poiName) {
         Vector3 poiLocation = mainCamera.transform.position + mainCamera.transform.forward * POI_DRAW_DISTANCE;
         GameObject pathNode = Instantiate(poiPointer, poiLocation, Quaternion.identity);
         pathNodes.Add(pathNode);
@@ -57,7 +57,7 @@ public class LocationScanner : MonoBehaviour {
             drawPath(from, to);            
         }
 
-        initiateSavePath();
+        initiateSavePath(locationName, poiName);
     }
 
     private void drawPath(Vector3 from, Vector3 to) {
@@ -75,10 +75,10 @@ public class LocationScanner : MonoBehaviour {
         }
     }
 
-    void initiateSavePath() {
+    void initiateSavePath(string locationName, string poiName) {
         Route route = new Route();
-        route.setLocationName("KIET");
-        route.setPoiName("Amul");
+        route.setLocationName(locationName);
+        route.setPoiName(poiName);
         List<string> nodes = new List<string>();
         foreach (GameObject node in pathNodes) {
             nodes.Add(route.convertVector(node.transform.position));

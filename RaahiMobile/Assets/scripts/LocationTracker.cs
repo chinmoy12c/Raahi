@@ -7,7 +7,17 @@ using System.Collections.Generic;
 
 public class LocationTracker : MonoBehaviour
 {
-    private string BASE_URL = "http://192.168.20.31:8080";
+    [SerializeField]
+    private GameObject turnPointer;
+    [SerializeField]
+    private GameObject poiPointer;
+    [SerializeField]
+    private GameObject directionalPointer;
+
+    private string BASE_URL = "http://10.21.85.102:8080";
+    private const float NODE_ARROW_DISTANCE = 0.5f;
+    private const float NODE_DRAW_DISTANCE = 0.7f;
+    private LocationGraph locationGraph;
 
     public static UnityWebRequest PostWebRequest(String uri, string body) {
         return PostWebRequest(new Uri(uri), body, Encoding.UTF8);
@@ -33,11 +43,66 @@ public class LocationTracker : MonoBehaviour
             yield return request.SendWebRequest();
             if (request.result == UnityWebRequest.Result.Success) {
                 Debug.Log("Response: " + request.downloadHandler.text);
-                LocationRouteResponse locationRoute = JsonUtility.FromJson<LocationRouteResponse>(request.downloadHandler.text);
+                LocationRoute locationRoute = JsonUtility.FromJson<LocationRoute>(request.downloadHandler.text);
+                locationGraph = new LocationGraph(locationRoute);
             }
             else {
                 Debug.Log("Failed: " + request.error);
             }
+        }
+    }
+
+    public void drawAllRoutes() {
+        Debug.Log(locationGraph.getIdToNode());
+        int startNode = locationGraph.getIdToNode()[0];
+        Debug.Log(startNode);
+        List<int> pathNodes = locationGraph.routeAllPaths(startNode);
+        HashSet<int> rendered = new HashSet<int>();
+        Vector3 from = new Vector3();
+        for (int x = 0; x < pathNodes.Count; x++) {
+            Debug.Log(pathNodes[x]);
+            Vector3 nodeVector = locationGraph.getNodeIds()[pathNodes[x]].Value;
+            if (!rendered.Contains(pathNodes[x])) {
+                GameObject pathNode = locationGraph.getIdToPoi().ContainsKey(pathNodes[x]) ?
+                    Instantiate(poiPointer, nodeVector, Quaternion.identity) :
+                    Instantiate(turnPointer, nodeVector, Quaternion.identity);
+                if (x > 0) {
+                    drawPath(from, nodeVector);            
+                }
+                rendered.Add(pathNodes[x]);
+            }
+            from = locationGraph.getNodeIds()[pathNodes[x]].Value;
+        }
+    }
+
+    public void drawRoute(int startNode, int endNode) {
+        List<int> pathNodes = locationGraph.routePath(startNode, endNode);
+        pathNodes.Add(endNode);
+        for (int x = 0; x < pathNodes.Count; x++) {
+            Debug.Log(pathNodes[x]);
+            Vector3 nodeVector = locationGraph.getNodeIds()[pathNodes[x]].Value;
+            GameObject pathNode = locationGraph.getIdToPoi().ContainsKey(pathNodes[x]) ?
+                Instantiate(poiPointer, nodeVector, Quaternion.identity) :
+                Instantiate(turnPointer, nodeVector, Quaternion.identity);
+            if (x > 0) {
+                Vector3 from = locationGraph.getNodeIds()[pathNodes[x-1]].Value;
+                drawPath(from, nodeVector);            
+            }
+        }
+    }
+
+    void drawPath(Vector3 from, Vector3 to) {
+        Vector3 direction = (to - from).normalized;
+        float nodesDistance = Vector3.Distance(from, to);
+        Vector3 nextDirectionalArrow = from + direction * NODE_DRAW_DISTANCE;
+        while (Vector3.Distance(from, nextDirectionalArrow) + NODE_ARROW_DISTANCE <= nodesDistance) {
+            Quaternion arrowRotation = new Quaternion();
+            arrowRotation.SetFromToRotation(
+                new Vector3(0,0,1),
+                direction
+            );
+            Instantiate(directionalPointer, nextDirectionalArrow, arrowRotation);
+            nextDirectionalArrow = nextDirectionalArrow + direction * NODE_DRAW_DISTANCE;
         }
     }
 }

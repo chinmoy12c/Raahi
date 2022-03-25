@@ -10,14 +10,16 @@ public class UIHandler : MonoBehaviour {
 	[SerializeField]
     private LocationTracker locationTracker;
 	[SerializeField]
-	private InputField locationField;
+	private InputField trackingLocationField;
+	[SerializeField]
+	private InputField scanningLocationField, scanningPOIField;
 
 	public void dropTurnOnClick(){
 		locationScanner.placeTurn();
 	}
 
 	public void dropPoiOnClick() {
-		locationScanner.placePoi();
+		locationScanner.placePoi(scanningLocationField.text, scanningPOIField.text);
 	}
 
 	public void launchScanningScene() {
@@ -28,8 +30,12 @@ public class UIHandler : MonoBehaviour {
 		SceneManager.LoadScene(sceneName:"TrackingScene");
 	}
 
-	public void resolveLocation() {
-		string locationName = locationField.text;
+	public void resolveLocationOnClick () {
+		string locationName = trackingLocationField.text;
 		locationTracker.fetchLocation(locationName);
+	}
+
+	public void drawRouteOnClick() {
+		locationTracker.drawAllRoutes();
 	}
 }
