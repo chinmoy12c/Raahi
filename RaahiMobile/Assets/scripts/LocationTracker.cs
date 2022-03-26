@@ -13,11 +13,17 @@ public class LocationTracker : MonoBehaviour
     private GameObject poiPointer;
     [SerializeField]
     private GameObject directionalPointer;
+    [SerializeField]
+    private Transform markerHolder;
 
-    private string BASE_URL = "http://10.21.85.102:8080";
+    private string BASE_URL = "http://192.168.20.31:8080";
     private const float NODE_ARROW_DISTANCE = 0.5f;
     private const float NODE_DRAW_DISTANCE = 0.7f;
     private LocationGraph locationGraph;
+
+    void Awake() {
+        DontDestroyOnLoad(markerHolder);
+    }
 
     public static UnityWebRequest PostWebRequest(String uri, string body) {
         return PostWebRequest(new Uri(uri), body, Encoding.UTF8);
@@ -53,9 +59,7 @@ public class LocationTracker : MonoBehaviour
     }
 
     public void drawAllRoutes() {
-        Debug.Log(locationGraph.getIdToNode());
         int startNode = locationGraph.getIdToNode()[0];
-        Debug.Log(startNode);
         List<int> pathNodes = locationGraph.routeAllPaths(startNode);
         HashSet<int> rendered = new HashSet<int>();
         Vector3 from = new Vector3();
@@ -64,8 +68,9 @@ public class LocationTracker : MonoBehaviour
             Vector3 nodeVector = locationGraph.getNodeIds()[pathNodes[x]].Value;
             if (!rendered.Contains(pathNodes[x])) {
                 GameObject pathNode = locationGraph.getIdToPoi().ContainsKey(pathNodes[x]) ?
-                    Instantiate(poiPointer, nodeVector, Quaternion.identity) :
-                    Instantiate(turnPointer, nodeVector, Quaternion.identity);
+                    Instantiate(poiPointer, nodeVector, Quaternion.identity, markerHolder) :
+                    Instantiate(turnPointer, nodeVector, Quaternion.identity, markerHolder);
+                ((SignBehaviour)pathNode.GetComponentInChildren(typeof(SignBehaviour))).setNodeId(pathNodes[x]);
                 if (x > 0) {
                     drawPath(from, nodeVector);            
                 }
@@ -82,8 +87,9 @@ public class LocationTracker : MonoBehaviour
             Debug.Log(pathNodes[x]);
             Vector3 nodeVector = locationGraph.getNodeIds()[pathNodes[x]].Value;
             GameObject pathNode = locationGraph.getIdToPoi().ContainsKey(pathNodes[x]) ?
-                Instantiate(poiPointer, nodeVector, Quaternion.identity) :
-                Instantiate(turnPointer, nodeVector, Quaternion.identity);
+                Instantiate(poiPointer, nodeVector, Quaternion.identity, markerHolder) :
+                Instantiate(turnPointer, nodeVector, Quaternion.identity, markerHolder);
+            ((SignBehaviour)pathNode.GetComponentInChildren(typeof(SignBehaviour))).setNodeId(locationGraph.getNodeIds()[pathNodes[x]].Key);
             if (x > 0) {
                 Vector3 from = locationGraph.getNodeIds()[pathNodes[x-1]].Value;
                 drawPath(from, nodeVector);            
@@ -101,7 +107,7 @@ public class LocationTracker : MonoBehaviour
                 new Vector3(0,0,1),
                 direction
             );
-            Instantiate(directionalPointer, nextDirectionalArrow, arrowRotation);
+            Instantiate(directionalPointer, nextDirectionalArrow, arrowRotation, markerHolder);
             nextDirectionalArrow = nextDirectionalArrow + direction * NODE_DRAW_DISTANCE;
         }
     }

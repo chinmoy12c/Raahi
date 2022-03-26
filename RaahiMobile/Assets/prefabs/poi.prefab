@@ -12,9 +12,10 @@ GameObject:
   - component: {fileID: 1494291549427586777}
   - component: {fileID: 7524465924764915042}
   - component: {fileID: 3045528285178999243}
+  - component: {fileID: 7341194890915227735}
   m_Layer: 0
   m_Name: icosphere
-  m_TagString: Untagged
+  m_TagString: extendPath
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -96,6 +97,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ROTATIONS_PER_MIN: 60
   TRANSLATION_RANGE: 0.2
+  nodeId: 0
+--- !u!64 &7341194890915227735
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 920860804187113842}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 0
+  m_CookingOptions: 30
+  m_Mesh: {fileID: 289301614986012343, guid: 59311a30db6cff6619bf772b5e98fd53, type: 3}
 --- !u!1 &4106334203582918977
 GameObject:
   m_ObjectHideFlags: 0

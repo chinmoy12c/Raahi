@@ -14,6 +14,29 @@ public class UIHandler : MonoBehaviour {
 	[SerializeField]
 	private InputField scanningLocationField, scanningPOIField;
 
+	void LateUpdate () {
+		// if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began) {
+		// 	RaycastHit hit;
+		// 	Ray ray = Camera.main.ScreenPointToRay(Input.GetTouch(0).position);
+			
+		// 	if (Physics.Raycast(ray, out hit)) {
+		// 		Transform objectHit = hit.transform;
+		// 		Debug.Log(objectHit.transform.position);
+		// 	}
+		// }
+
+		if (Input.GetMouseButtonDown(0)) {
+			RaycastHit hit;
+			Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+			if (Physics.Raycast(ray, out hit) && hit.transform.gameObject.tag == "extendPath") {
+				UnitySingleton.Instance.cameraPosition = Camera.main.transform.position;
+				UnitySingleton.Instance.extendFromId = hit.transform.gameObject.GetComponent<SignBehaviour>().getNodeId();
+				UnitySingleton.Instance.extendFromVector = hit.transform.gameObject.transform.parent.position;
+				SceneManager.LoadScene(sceneName:"ScanningScene");
+			}
+		}
+	}
+
 	public void dropTurnOnClick(){
 		locationScanner.placeTurn();
 	}

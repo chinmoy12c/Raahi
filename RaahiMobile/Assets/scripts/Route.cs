@@ -7,6 +7,7 @@ public class Route {
     public List<String> nodes;
     public string locationName;
     public string poiName;
+    public int extendFromId;
 
     public string convertVector(Vector3 loc) {
         return loc.x + "_" + loc.y + "_" + loc.z;
@@ -34,5 +35,13 @@ public class Route {
 
     public string getPoiName() {
         return poiName;
+    }
+
+    public void setExtendFromId(int extendFromId) {
+        this.extendFromId = extendFromId; 
+    }
+
+    public int getExtendFromId() {
+        return extendFromId;
     }
 }

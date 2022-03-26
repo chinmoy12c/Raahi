@@ -1,6 +1,7 @@
 package com.xsparks.Raahi.controller;
 
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.HashMap;
 
 import com.xsparks.Raahi.dao.EdgeRepo;
@@ -55,6 +56,33 @@ public class RouteController {
                 edge.setTo(createdNode);
                 edgeRepo.save(edge);
             }
+            createdNodes.add(createdNode);
+        }
+        POI routePoi = new POI();
+        routePoi.setNode(createdNodes.get(createdNodes.size() - 1));
+        routePoi.setPoiName(poiName);
+        poiRepo.save(routePoi);
+    }
+
+    @PostMapping("/extendRoute")
+    void extendRoute(@RequestBody HashMap<String, Object> request) {
+        ArrayList<String> nodes = (ArrayList<String>) request.get("nodes");
+        String locationName = (String) request.get("locationName");
+        String poiName = (String) request.get("poiName");
+        int extendFromId = (Integer) request.get("extendFromId");
+        Location location = locationRepo.getByLocationName(locationName);
+        PathNode extendFrom = pathNodeRepo.getById(extendFromId);
+        ArrayList<PathNode> createdNodes = new ArrayList<>();
+        createdNodes.add(extendFrom);
+        for (int x = 1; x < nodes.size(); x++) {
+            PathNode pathNode = new PathNode();
+            pathNode.setLocation(location);
+            pathNode.setVector(nodes.get(x));
+            PathNode createdNode = pathNodeRepo.save(pathNode);
+            Edge edge = new Edge();
+            edge.setFrom(createdNodes.get(createdNodes.size() - 1));
+            edge.setTo(createdNode);
+            edgeRepo.save(edge);
             createdNodes.add(createdNode);
         }
         POI routePoi = new POI();

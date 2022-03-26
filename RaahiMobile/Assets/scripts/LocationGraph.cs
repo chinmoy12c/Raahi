@@ -76,10 +76,11 @@ class LocationGraph {
         nodes.Add(currentNode);
         visited[currentNode] = true;
         foreach (KeyValuePair<int, float> adjNode in graph[currentNode]) {
-            if (!visited[adjNode.Key])
+            if (!visited[adjNode.Key]) {
                 bfs(adjNode.Key, nodes, visited);
+                nodes.Add(currentNode);
+            }
         }
-        nodes.Add(currentNode);
     }
 
     public List<int> routePath(int currentNode, int destinationNode) {

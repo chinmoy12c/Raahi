@@ -13,18 +13,27 @@ public class LocationScanner : MonoBehaviour {
     private GameObject directionalPointer;
     [SerializeField]
     private GameObject turnPointer;
+    [SerializeField]
+    private Transform markerHolder;
 
     private const float POI_DRAW_DISTANCE = 1.5f;
     private const float NODE_DRAW_DISTANCE = 0.7f;
     private const float NODE_ARROW_DISTANCE = 0.5f;
-    private string BASE_URL = "http://10.21.85.102:8080";
+    private string BASE_URL = "http://192.168.20.31:8080";
 
     private Camera mainCamera;
-    private List<GameObject> pathNodes;
+    private List<Vector3> pathNodes;
+
+    void Awake() {
+        DontDestroyOnLoad(markerHolder);
+    }
 
 	void Start () {
 		mainCamera = Camera.main;
-        pathNodes = new List<GameObject>();
+        mainCamera.transform.position = UnitySingleton.Instance.cameraPosition;
+        pathNodes = new List<Vector3>();
+        if (UnitySingleton.Instance.extendFromId != -1)
+            pathNodes.Add(UnitySingleton.Instance.extendFromVector);
 	}
 
     public static UnityWebRequest PostWebRequest(String uri, string body) {
@@ -38,22 +47,22 @@ public class LocationScanner : MonoBehaviour {
 
 	public void placeTurn() {
         Vector3 poiLocation = mainCamera.transform.position + mainCamera.transform.forward * POI_DRAW_DISTANCE;
-        GameObject pathNode = Instantiate(turnPointer, poiLocation, Quaternion.identity);
-        pathNodes.Add(pathNode);
+        GameObject pathNode = Instantiate(turnPointer, poiLocation, Quaternion.identity, markerHolder);
+        pathNodes.Add(pathNode.transform.position);
         if (pathNodes.Count > 1) {
-            Vector3 from = pathNodes[pathNodes.Count - 2].transform.position;
-            Vector3 to = pathNodes[pathNodes.Count - 1].transform.position;
+            Vector3 from = pathNodes[pathNodes.Count - 2];
+            Vector3 to = pathNodes[pathNodes.Count - 1];
             drawPath(from, to);            
         }
     }
 
     public void placePoi(string locationName, string poiName) {
         Vector3 poiLocation = mainCamera.transform.position + mainCamera.transform.forward * POI_DRAW_DISTANCE;
-        GameObject pathNode = Instantiate(poiPointer, poiLocation, Quaternion.identity);
-        pathNodes.Add(pathNode);
+        GameObject pathNode = Instantiate(poiPointer, poiLocation, Quaternion.identity, markerHolder);
+        pathNodes.Add(pathNode.transform.position);
         if (pathNodes.Count > 1) {
-            Vector3 from = pathNodes[pathNodes.Count - 2].transform.position;
-            Vector3 to = pathNodes[pathNodes.Count - 1].transform.position;
+            Vector3 from = pathNodes[pathNodes.Count - 2];
+            Vector3 to = pathNodes[pathNodes.Count - 1];
             drawPath(from, to);            
         }
 
@@ -70,7 +79,7 @@ public class LocationScanner : MonoBehaviour {
                 new Vector3(0,0,1),
                 direction
             );
-            Instantiate(directionalPointer, nextDirectionalArrow, arrowRotation);
+            Instantiate(directionalPointer, nextDirectionalArrow, arrowRotation, markerHolder);
             nextDirectionalArrow = nextDirectionalArrow + direction * NODE_DRAW_DISTANCE;
         }
     }
@@ -79,12 +88,16 @@ public class LocationScanner : MonoBehaviour {
         Route route = new Route();
         route.setLocationName(locationName);
         route.setPoiName(poiName);
+        route.setExtendFromId(UnitySingleton.Instance.extendFromId);
         List<string> nodes = new List<string>();
-        foreach (GameObject node in pathNodes) {
-            nodes.Add(route.convertVector(node.transform.position));
+        foreach (Vector3 node in pathNodes) {
+            nodes.Add(route.convertVector(node));
         }
         route.setNodes(nodes);
-        StartCoroutine(postRouteData(route));
+        if (UnitySingleton.Instance.extendFromId != -1)
+            StartCoroutine(postExtendRoute(route));
+        else
+            StartCoroutine(postRouteData(route));
     }
 
     IEnumerator postRouteData(Route route) {
@@ -96,6 +109,24 @@ public class LocationScanner : MonoBehaviour {
             yield return request.SendWebRequest();
             if (request.result == UnityWebRequest.Result.Success) {
                 Debug.Log("Success");
+                pathNodes = new List<Vector3>();
+            }
+            else {
+                Debug.Log("Failed");
+            }
+        }
+    }
+
+    IEnumerator postExtendRoute(Route route) {
+        string jsonData = JsonUtility.ToJson(route);
+        Debug.Log(jsonData);
+        using (UnityWebRequest request = PostWebRequest(BASE_URL + "/extendRoute", jsonData)) {
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Accept", "application/json");
+            yield return request.SendWebRequest();
+            if (request.result == UnityWebRequest.Result.Success) {
+                Debug.Log("Success");
+                pathNodes = new List<Vector3>();
             }
             else {
                 Debug.Log("Failed");

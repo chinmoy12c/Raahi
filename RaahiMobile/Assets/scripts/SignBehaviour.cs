@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class poiBehaviour : MonoBehaviour
+public class SignBehaviour : MonoBehaviour
 {
     [SerializeField]
     private float ROTATIONS_PER_MIN = 120.0f;
@@ -11,6 +11,8 @@ public class poiBehaviour : MonoBehaviour
     private float TRANSLATION_RANGE = 0.2f;
     private Vector3 initialPosition;
     private Transform objectTransform;
+
+    public int nodeId;
 
     void Start()
     {
@@ -27,5 +29,13 @@ public class poiBehaviour : MonoBehaviour
             initialPosition.y + TRANSLATION_RANGE * (float)Math.Sin(Time.time),
             initialPosition.z
         );
+    }
+
+    public int getNodeId() {
+        return nodeId;
+    }
+
+    public void setNodeId(int nodeId) {
+        this.nodeId = nodeId;
     }
 }
