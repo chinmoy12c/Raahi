@@ -13,6 +13,8 @@ public class UIHandler : MonoBehaviour {
 	private InputField trackingLocationField;
 	[SerializeField]
 	private InputField scanningLocationField, scanningPOIField;
+	[SerializeField]
+	private Dropdown poiSelector;
 
 	void LateUpdate () {
 		// if (Input.touchCount > 0 && Input.GetTouch(0).phase == TouchPhase.Began) {
@@ -60,5 +62,9 @@ public class UIHandler : MonoBehaviour {
 
 	public void drawRouteOnClick() {
 		locationTracker.drawAllRoutes();
+	}
+
+	public void onPoiSelected() {
+		locationTracker.drawRoute(poiSelector.options[poiSelector.value].text);
 	}
 }

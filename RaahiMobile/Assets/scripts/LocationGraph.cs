@@ -12,6 +12,7 @@ class LocationGraph {
     List<List<KeyValuePair<int, float>>> graph = new List<List<KeyValuePair<int, float>>>();
     Dictionary<string, Poi> pois = new Dictionary<string, Poi>();
     Dictionary<int, string> idToPoi = new Dictionary<int, string>();
+    List<string> poiList = new List<string>();
 
     public LocationGraph(LocationRoute locationRoute) {
         foreach (Edge edge in locationRoute.edges) {
@@ -34,6 +35,7 @@ class LocationGraph {
 
         foreach (Poi poi in locationRoute.pois) {
             pois[poi.poiName] = poi;
+            poiList.Add(poi.poiName);
             idToPoi[poi.node.id] = poi.poiName;
         }
     }
@@ -46,8 +48,16 @@ class LocationGraph {
         return idToNode;
     }
 
+    public Dictionary<string, Poi> getPois() {
+        return pois;
+    }
+
     public Dictionary<int, string> getIdToPoi() {
         return idToPoi;
+    }
+
+    public List<string> getPoiList() {
+        return poiList;
     }
 
     Vector3 convertToVector(string vectorStr) {

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.UI;
 using System;
 using System.Text;
 using System.Collections;
@@ -15,6 +16,8 @@ public class LocationTracker : MonoBehaviour
     private GameObject directionalPointer;
     [SerializeField]
     private Transform markerHolder;
+    [SerializeField]
+    private Dropdown poiSelector;
 
     private string BASE_URL = "http://192.168.20.31:8080";
     private const float NODE_ARROW_DISTANCE = 0.5f;
@@ -51,6 +54,9 @@ public class LocationTracker : MonoBehaviour
                 Debug.Log("Response: " + request.downloadHandler.text);
                 LocationRoute locationRoute = JsonUtility.FromJson<LocationRoute>(request.downloadHandler.text);
                 locationGraph = new LocationGraph(locationRoute);
+                poiSelector.ClearOptions();
+                poiSelector.AddOptions(new List<string>(){"All Paths"});
+                poiSelector.AddOptions(locationGraph.getPoiList());
             }
             else {
                 Debug.Log("Failed: " + request.error);
@@ -59,6 +65,7 @@ public class LocationTracker : MonoBehaviour
     }
 
     public void drawAllRoutes() {
+        clearPaths();
         int startNode = locationGraph.getIdToNode()[0];
         List<int> pathNodes = locationGraph.routeAllPaths(startNode);
         HashSet<int> rendered = new HashSet<int>();
@@ -80,7 +87,10 @@ public class LocationTracker : MonoBehaviour
         }
     }
 
-    public void drawRoute(int startNode, int endNode) {
+    public void drawRoute(string poi) {
+        clearPaths();
+        int startNode = getNearestNode();
+        int endNode = locationGraph.getPois()[poi].node.id;
         List<int> pathNodes = locationGraph.routePath(startNode, endNode);
         pathNodes.Add(endNode);
         for (int x = 0; x < pathNodes.Count; x++) {
@@ -109,6 +119,27 @@ public class LocationTracker : MonoBehaviour
             );
             Instantiate(directionalPointer, nextDirectionalArrow, arrowRotation, markerHolder);
             nextDirectionalArrow = nextDirectionalArrow + direction * NODE_DRAW_DISTANCE;
+        }
+    }
+
+    int getNearestNode() {
+        Vector3 from = Camera.main.transform.position;
+        float minDistance = float.MaxValue;
+        int nearestNode = -1;
+        foreach (KeyValuePair<int, KeyValuePair<int, Vector3>> node in locationGraph.getNodeIds()) {
+            float distance = Vector3.Distance(from, node.Value.Value);
+            if (distance < minDistance) {
+                minDistance = distance;
+                nearestNode = node.Key;
+            }
+        }
+        
+        return nearestNode;
+    }
+
+    void clearPaths() {
+        foreach (Transform marker in markerHolder) {
+            Destroy(marker.gameObject);
         }
     }
 }
