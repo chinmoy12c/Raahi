@@ -65,6 +65,9 @@ public class UIHandler : MonoBehaviour {
 	}
 
 	public void onPoiSelected() {
-		locationTracker.drawRoute(poiSelector.options[poiSelector.value].text);
+		if (poiSelector.value == 0)
+			locationTracker.drawAllRoutes();
+		else
+			locationTracker.drawRoute(poiSelector.options[poiSelector.value].text);
 	}
 }

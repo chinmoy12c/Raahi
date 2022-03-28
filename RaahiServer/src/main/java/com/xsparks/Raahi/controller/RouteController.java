@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import net.minidev.json.JSONObject;
 
@@ -33,13 +35,13 @@ public class RouteController {
     POIRepo poiRepo;
 
     @PostMapping("/saveRoute")
-    void saveRoute(@RequestBody HashMap<String, Object> request) {
+    JSONObject saveRoute(@RequestBody HashMap<String, Object> request) {
         ArrayList<String> nodes = (ArrayList<String>) request.get("nodes");
         String locationName = (String) request.get("locationName");
         String poiName = (String) request.get("poiName");
         Location location = locationRepo.getByLocationName(locationName);
         if (location != null) {
-            return;
+            return null;
         }
         location = new Location();
         location.setLocationName(locationName);
@@ -62,10 +64,16 @@ public class RouteController {
         routePoi.setNode(createdNodes.get(createdNodes.size() - 1));
         routePoi.setPoiName(poiName);
         poiRepo.save(routePoi);
+
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        String fetchDataUrl = baseUrl + "/getLocation";
+        RestTemplate restTemplate = new RestTemplate();
+        JSONObject locationData = restTemplate.postForObject(fetchDataUrl, request, JSONObject.class);
+        return locationData;
     }
 
     @PostMapping("/extendRoute")
-    void extendRoute(@RequestBody HashMap<String, Object> request) {
+    JSONObject extendRoute(@RequestBody HashMap<String, Object> request) {
         ArrayList<String> nodes = (ArrayList<String>) request.get("nodes");
         String locationName = (String) request.get("locationName");
         String poiName = (String) request.get("poiName");
@@ -89,6 +97,12 @@ public class RouteController {
         routePoi.setNode(createdNodes.get(createdNodes.size() - 1));
         routePoi.setPoiName(poiName);
         poiRepo.save(routePoi);
+
+        String baseUrl = ServletUriComponentsBuilder.fromCurrentContextPath().build().toUriString();
+        String fetchDataUrl = baseUrl + "/getLocation";
+        RestTemplate restTemplate = new RestTemplate();
+        JSONObject locationData = restTemplate.postForObject(fetchDataUrl, request, JSONObject.class);
+        return locationData;
     }
 
     @PostMapping("/getLocation")

@@ -19,10 +19,27 @@ public class LocationTracker : MonoBehaviour
     [SerializeField]
     private Dropdown poiSelector;
 
-    private string BASE_URL = "http://192.168.20.31:8080";
+    private string BASE_URL = "http://10.21.84.212:8080";
     private const float NODE_ARROW_DISTANCE = 0.5f;
     private const float NODE_DRAW_DISTANCE = 0.7f;
     private LocationGraph locationGraph;
+
+    void Start()
+    {
+        clearPaths();
+        if (UnitySingleton.Instance.locationData != null) {
+            Camera.main.transform.position = UnitySingleton.Instance.cameraPosition;
+            LocationRoute locationRoute = JsonUtility.FromJson<LocationRoute>(UnitySingleton.Instance.locationData);
+            locationGraph = new LocationGraph(locationRoute);
+            poiSelector.ClearOptions();
+            poiSelector.AddOptions(new List<string>(){"All Paths"});
+            poiSelector.AddOptions(locationGraph.getPoiList());
+            drawAllRoutes();
+        }
+        else {
+            Debug.Log("No data");
+        }
+    }
 
     void Awake() {
         DontDestroyOnLoad(markerHolder);
@@ -138,8 +155,11 @@ public class LocationTracker : MonoBehaviour
     }
 
     void clearPaths() {
-        foreach (Transform marker in markerHolder) {
-            Destroy(marker.gameObject);
+        GameObject[] markerHolders = GameObject.FindGameObjectsWithTag("markerHolder");
+        foreach (GameObject holder in markerHolders) {
+            foreach (Transform marker in holder.transform) {
+                Destroy(marker.gameObject);
+            }
         }
     }
 }

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.Networking;
+using UnityEngine.SceneManagement;
 using System;
 using System.Text;
 using System.Collections;
@@ -19,14 +20,10 @@ public class LocationScanner : MonoBehaviour {
     private const float POI_DRAW_DISTANCE = 1.5f;
     private const float NODE_DRAW_DISTANCE = 0.7f;
     private const float NODE_ARROW_DISTANCE = 0.5f;
-    private string BASE_URL = "http://192.168.20.31:8080";
+    private string BASE_URL = "http://10.21.84.212:8080";
 
     private Camera mainCamera;
     private List<Vector3> pathNodes;
-
-    void Awake() {
-        DontDestroyOnLoad(markerHolder);
-    }
 
 	void Start () {
 		mainCamera = Camera.main;
@@ -108,8 +105,10 @@ public class LocationScanner : MonoBehaviour {
             request.SetRequestHeader("Accept", "application/json");
             yield return request.SendWebRequest();
             if (request.result == UnityWebRequest.Result.Success) {
-                Debug.Log("Success");
-                pathNodes = new List<Vector3>();
+                Debug.Log(request.downloadHandler.text);
+                UnitySingleton.Instance.locationData = request.downloadHandler.text;
+				UnitySingleton.Instance.cameraPosition = Camera.main.transform.position;
+				SceneManager.LoadScene(sceneName:"TrackingScene");
             }
             else {
                 Debug.Log("Failed");
@@ -125,8 +124,10 @@ public class LocationScanner : MonoBehaviour {
             request.SetRequestHeader("Accept", "application/json");
             yield return request.SendWebRequest();
             if (request.result == UnityWebRequest.Result.Success) {
-                Debug.Log("Success");
-                pathNodes = new List<Vector3>();
+                Debug.Log(request.downloadHandler.text);
+                UnitySingleton.Instance.locationData = request.downloadHandler.text;
+				UnitySingleton.Instance.cameraPosition = Camera.main.transform.position;
+				SceneManager.LoadScene(sceneName:"TrackingScene");
             }
             else {
                 Debug.Log("Failed");
