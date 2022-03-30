@@ -472,7 +472,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   turnPointer: {fileID: 422495092191960783, guid: 0b591861348ffabf6bd3c9bb64e9133d,
     type: 3}
-  poiPointer: {fileID: 4106334203582918977, guid: 9a68fdb6f43fc7c8897a7d35a07e210f,
+  poiPointer: {fileID: 5775207645711606791, guid: b606660836e424e7b878c6234b4df759,
     type: 3}
   directionalPointer: {fileID: 7996964232464785029, guid: eff1e67358d4898e085ec4c881b67847,
     type: 3}

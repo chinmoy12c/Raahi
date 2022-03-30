@@ -19,13 +19,15 @@ public class LocationTracker : MonoBehaviour
     [SerializeField]
     private Dropdown poiSelector;
 
-    private string BASE_URL = "http://10.21.84.212:8080";
+    private string BASE_URL = "http://13.235.48.103:8080";
     private const float NODE_ARROW_DISTANCE = 0.5f;
     private const float NODE_DRAW_DISTANCE = 0.7f;
     private LocationGraph locationGraph;
+    private Color currentColor = Color.blue;
 
     void Start()
     {
+        Camera.main.transform.rotation = Quaternion.identity;
         clearPaths();
         if (UnitySingleton.Instance.locationData != null) {
             Camera.main.transform.position = UnitySingleton.Instance.cameraPosition;
@@ -100,6 +102,9 @@ public class LocationTracker : MonoBehaviour
                 }
                 rendered.Add(pathNodes[x]);
             }
+            else {
+                currentColor = UnityEngine.Random.ColorHSV(0f, 1f, 1f, 1f, 0.5f, 1f);
+            }
             from = locationGraph.getNodeIds()[pathNodes[x]].Value;
         }
     }
@@ -134,7 +139,8 @@ public class LocationTracker : MonoBehaviour
                 new Vector3(0,0,1),
                 direction
             );
-            Instantiate(directionalPointer, nextDirectionalArrow, arrowRotation, markerHolder);
+            GameObject arrow = Instantiate(directionalPointer, nextDirectionalArrow, arrowRotation, markerHolder);
+            arrow.GetComponentInChildren<Renderer>().material.color = currentColor;
             nextDirectionalArrow = nextDirectionalArrow + direction * NODE_DRAW_DISTANCE;
         }
     }

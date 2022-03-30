@@ -20,13 +20,14 @@ public class LocationScanner : MonoBehaviour {
     private const float POI_DRAW_DISTANCE = 1.5f;
     private const float NODE_DRAW_DISTANCE = 0.7f;
     private const float NODE_ARROW_DISTANCE = 0.5f;
-    private string BASE_URL = "http://10.21.84.212:8080";
+    private string BASE_URL = "http://13.235.48.103:8080";
 
     private Camera mainCamera;
     private List<Vector3> pathNodes;
 
 	void Start () {
 		mainCamera = Camera.main;
+        mainCamera.transform.rotation = Quaternion.identity;
         mainCamera.transform.position = UnitySingleton.Instance.cameraPosition;
         pathNodes = new List<Vector3>();
         if (UnitySingleton.Instance.extendFromId != -1)
@@ -54,7 +55,7 @@ public class LocationScanner : MonoBehaviour {
     }
 
     public void placePoi(string locationName, string poiName) {
-        Vector3 poiLocation = mainCamera.transform.position + mainCamera.transform.forward * POI_DRAW_DISTANCE;
+        Vector3 poiLocation = mainCamera.transform.position + mainCamera.transform.forward * POI_DRAW_DISTANCE + new Vector3(0, -1, 0);
         GameObject pathNode = Instantiate(poiPointer, poiLocation, Quaternion.identity, markerHolder);
         pathNodes.Add(pathNode.transform.position);
         if (pathNodes.Count > 1) {
