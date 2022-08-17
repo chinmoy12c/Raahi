@@ -75,19 +75,19 @@ class LocationGraph {
         currentNode = nodeIds[currentNode].Key;
         List<int> nodes = new List<int>();
         bool[] visited = new bool[graph.Count];
-        bfs(currentNode, nodes, visited);
+        dfs(currentNode, nodes, visited);
         List<int> pathNodes = new List<int>();
         foreach (int node in nodes)
             pathNodes.Add(idToNode[node]);
         return pathNodes;
     }
 
-    void bfs(int currentNode, List<int> nodes, bool[] visited) {
+    void dfs(int currentNode, List<int> nodes, bool[] visited) {
         nodes.Add(currentNode);
         visited[currentNode] = true;
         foreach (KeyValuePair<int, float> adjNode in graph[currentNode]) {
             if (!visited[adjNode.Key]) {
-                bfs(adjNode.Key, nodes, visited);
+                dfs(adjNode.Key, nodes, visited);
                 nodes.Add(currentNode);
             }
         }
