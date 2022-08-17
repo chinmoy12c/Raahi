@@ -106,7 +106,6 @@ class LocationGraph {
             destinationNode = parent[destinationNode];
         }
         pathNodes.Reverse();
-        Debug.Log(pathNodes);
         return pathNodes;
     }
 
